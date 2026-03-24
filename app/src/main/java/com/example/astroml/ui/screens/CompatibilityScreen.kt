@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.example.astroml.data.api.RetrofitClient
 import com.example.astroml.data.models.CompatibilityRequest
 import com.example.astroml.data.models.CompatibilityResponse
+import com.example.astroml.data.models.PersonDetail          // ✅ New nested model
 import com.example.astroml.data.models.UiState
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -34,7 +35,7 @@ fun CompatibilityScreen(
     isDarkMode: Boolean,
     onToggleTheme: () -> Unit
 ) {
-    val scrollState = rememberScrollState()
+    val scrollState    = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
     // Person 1
@@ -51,10 +52,9 @@ fun CompatibilityScreen(
     var city2 by remember { mutableStateOf("") }
     var city2Expanded by remember { mutableStateOf(false) }
 
-    var cities by remember { mutableStateOf<List<String>>(emptyList()) }
+    var cities      by remember { mutableStateOf<List<String>>(emptyList()) }
     var compatState by remember { mutableStateOf<UiState<CompatibilityResponse>>(UiState.Idle) }
 
-    // DatePicker / TimePicker states
     var showDatePicker1 by remember { mutableStateOf(false) }
     var showDatePicker2 by remember { mutableStateOf(false) }
     var showTimePicker1 by remember { mutableStateOf(false) }
@@ -65,16 +65,14 @@ fun CompatibilityScreen(
     val timePicker1State = rememberTimePickerState(is24Hour = true)
     val timePicker2State = rememberTimePickerState(is24Hour = true)
 
-    // Helper to convert millis -> YYYY-MM-DD
     fun millisToDate(millis: Long): String {
         val cal = Calendar.getInstance().apply { timeInMillis = millis }
-        val y = cal.get(Calendar.YEAR)
-        val m = String.format("%02d", cal.get(Calendar.MONTH) + 1)
-        val d = String.format("%02d", cal.get(Calendar.DAY_OF_MONTH))
+        val y   = cal.get(Calendar.YEAR)
+        val m   = String.format("%02d", cal.get(Calendar.MONTH) + 1)
+        val d   = String.format("%02d", cal.get(Calendar.DAY_OF_MONTH))
         return "$y-$m-$d"
     }
 
-    // DatePicker dialogs
     if (showDatePicker1) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker1 = false },
@@ -84,9 +82,7 @@ fun CompatibilityScreen(
                     showDatePicker1 = false
                 }) { Text("OK") }
             },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker1 = false }) { Text("Cancel") }
-            }
+            dismissButton = { TextButton(onClick = { showDatePicker1 = false }) { Text("Cancel") } }
         ) { DatePicker(state = datePicker1State) }
     }
 
@@ -99,13 +95,10 @@ fun CompatibilityScreen(
                     showDatePicker2 = false
                 }) { Text("OK") }
             },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker2 = false }) { Text("Cancel") }
-            }
+            dismissButton = { TextButton(onClick = { showDatePicker2 = false }) { Text("Cancel") } }
         ) { DatePicker(state = datePicker2State) }
     }
 
-    // TimePicker dialogs
     if (showTimePicker1) {
         AlertDialog(
             onDismissRequest = { showTimePicker1 = false },
@@ -134,13 +127,10 @@ fun CompatibilityScreen(
         )
     }
 
-    // Load cities
     LaunchedEffect(Unit) {
         try {
             val response = RetrofitClient.apiService.getCities()
-            if (response.isSuccessful) {
-                cities = response.body()?.cities ?: emptyList()
-            }
+            if (response.isSuccessful) cities = response.body()?.cities ?: emptyList()
         } catch (e: Exception) {}
     }
 
@@ -159,68 +149,65 @@ fun CompatibilityScreen(
     ) {
         // Top Bar
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier              = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment     = Alignment.CenterVertically
         ) {
             Text(
-                text = "💕 Compatibility",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground,
+                text       = "💕 Compatibility",
+                style      = MaterialTheme.typography.titleLarge,
+                color      = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold
             )
             IconButton(
-                onClick = onToggleTheme,
+                onClick  = onToggleTheme,
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Icon(
-                    imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
+                    imageVector        = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
                     contentDescription = "Toggle Theme",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
+                    tint               = MaterialTheme.colorScheme.primary,
+                    modifier           = Modifier.size(20.dp)
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-
         Text(
-            text = "Match Check",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onBackground,
+            text       = "Match Check",
+            style      = MaterialTheme.typography.headlineMedium,
+            color      = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "Enter birth details of both people",
+            text  = "Enter birth details of both people",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Person 1 Card
         PersonInputCard(
-            personNumber = 1,
-            name = name1, onNameChange = { name1 = it },
-            date = date1, onDateClick = { showDatePicker1 = true },
-            time = time1, onTimeClick = { showTimePicker1 = true },
-            city = city1, onCityChange = { city1 = it },
-            cityExpanded = city1Expanded,
+            personNumber      = 1,
+            name              = name1, onNameChange = { name1 = it },
+            date              = date1, onDateClick  = { showDatePicker1 = true },
+            time              = time1, onTimeClick  = { showTimePicker1 = true },
+            city              = city1, onCityChange = { city1 = it },
+            cityExpanded      = city1Expanded,
             onCityExpandedChange = { city1Expanded = it },
-            cities = cities
+            cities            = cities
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Divider with heart
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier              = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment     = Alignment.CenterVertically
         ) {
             HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
             Text(text = "  💕  ", fontSize = 20.sp)
@@ -229,36 +216,39 @@ fun CompatibilityScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Person 2 Card
         PersonInputCard(
-            personNumber = 2,
-            name = name2, onNameChange = { name2 = it },
-            date = date2, onDateClick = { showDatePicker2 = true },
-            time = time2, onTimeClick = { showTimePicker2 = true },
-            city = city2, onCityChange = { city2 = it },
-            cityExpanded = city2Expanded,
+            personNumber      = 2,
+            name              = name2, onNameChange = { name2 = it },
+            date              = date2, onDateClick  = { showDatePicker2 = true },
+            time              = time2, onTimeClick  = { showTimePicker2 = true },
+            city              = city2, onCityChange = { city2 = it },
+            cityExpanded      = city2Expanded,
             onCityExpandedChange = { city2Expanded = it },
-            cities = cities
+            cities            = cities
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Check Button
         Button(
             onClick = {
                 coroutineScope.launch {
                     compatState = UiState.Loading
                     try {
+                        // ✅ FIXED: was flat fields — backend needs nested PersonDetail objects
                         val response = RetrofitClient.apiService.checkCompatibility(
                             CompatibilityRequest(
-                                person1_name = name1,
-                                person1_birth_date = date1,
-                                person1_birth_time = time1,
-                                person1_city = city1,
-                                person2_name = name2,
-                                person2_birth_date = date2,
-                                person2_birth_time = time2,
-                                person2_city = city2
+                                person1 = PersonDetail(
+                                    name       = name1,
+                                    birth_date = date1,
+                                    birth_time = time1,
+                                    birth_city = city1
+                                ),
+                                person2 = PersonDetail(
+                                    name       = name2,
+                                    birth_date = date2,
+                                    birth_time = time2,
+                                    birth_city = city2
+                                )
                             )
                         )
                         compatState = if (response.isSuccessful && response.body() != null) {
@@ -271,32 +261,30 @@ fun CompatibilityScreen(
                     }
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-            enabled = isFormValid && compatState !is UiState.Loading
+            modifier = Modifier.fillMaxWidth().height(54.dp),
+            shape    = RoundedCornerShape(16.dp),
+            colors   = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            enabled  = isFormValid && compatState !is UiState.Loading
         ) {
             when (compatState) {
                 is UiState.Loading -> {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(22.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier    = Modifier.size(22.dp),
+                        color       = MaterialTheme.colorScheme.onPrimary,
                         strokeWidth = 2.dp
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
-                        text = "Checking...",
+                        text  = "Checking...",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
                 else -> {
                     Text(
-                        text = "Check Compatibility 💕",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        text       = "Check Compatibility 💕",
+                        style      = MaterialTheme.typography.titleSmall,
+                        color      = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -305,43 +293,43 @@ fun CompatibilityScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Result
         AnimatedVisibility(
             visible = compatState is UiState.Success || compatState is UiState.Error,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
+            enter   = fadeIn() + expandVertically(),
+            exit    = fadeOut() + shrinkVertically()
         ) {
             when (val state = compatState) {
                 is UiState.Success -> CompatibilityResultCard(data = state.data)
-                is UiState.Error -> ErrorCard(message = state.message)
-                else -> {}
+                is UiState.Error   -> ErrorCard(message = state.message)
+                else               -> {}
             }
         }
     }
 }
 
+// ── Person Input Card ──────────────────────────────────────────────────────────
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PersonInputCard(
     personNumber: Int,
-    name: String, onNameChange: (String) -> Unit,
-    date: String, onDateClick: () -> Unit,
-    time: String, onTimeClick: () -> Unit,
-    city: String, onCityChange: (String) -> Unit,
+    name: String,  onNameChange: (String) -> Unit,
+    date: String,  onDateClick: () -> Unit,
+    time: String,  onTimeClick: () -> Unit,
+    city: String,  onCityChange: (String) -> Unit,
     cityExpanded: Boolean,
     onCityExpandedChange: (Boolean) -> Unit,
     cities: List<String>
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier  = Modifier.fillMaxWidth(),
+        shape     = RoundedCornerShape(20.dp),
+        colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(0.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        border    = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
 
-            // Header
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
@@ -351,32 +339,31 @@ fun PersonInputCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "$personNumber",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        text       = "$personNumber",
+                        style      = MaterialTheme.typography.titleSmall,
+                        color      = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Person $personNumber",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    text       = "Person $personNumber",
+                    style      = MaterialTheme.typography.titleMedium,
+                    color      = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.SemiBold
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Name
             OutlinedTextField(
-                value = name,
+                value         = name,
                 onValueChange = onNameChange,
-                label = { Text("Name", style = MaterialTheme.typography.bodyMedium) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                label         = { Text("Name", style = MaterialTheme.typography.bodyMedium) },
+                modifier      = Modifier.fillMaxWidth(),
+                shape         = RoundedCornerShape(12.dp),
+                colors        = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor   = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline
                 ),
                 singleLine = true
@@ -384,112 +371,75 @@ fun PersonInputCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Date & Time
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
-                    value = date,
+                    value         = date,
                     onValueChange = {},
-                    label = { Text("Date", style = MaterialTheme.typography.bodyMedium) },
-                    placeholder = {
-                        Text(
-                            "Pick date",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    label         = { Text("Date", style = MaterialTheme.typography.bodyMedium) },
+                    placeholder   = { Text("Pick date", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    modifier      = Modifier.weight(1f),
+                    shape         = RoundedCornerShape(12.dp),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor   = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     ),
                     trailingIcon = {
                         IconButton(onClick = onDateClick) {
-                            Icon(
-                                Icons.Default.CalendarMonth,
-                                contentDescription = "Pick Date",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(18.dp)
-                            )
+                            Icon(Icons.Default.CalendarMonth, contentDescription = "Pick Date",
+                                tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                         }
                     },
-                    readOnly = true,
+                    readOnly   = true,
                     singleLine = true
                 )
                 OutlinedTextField(
-                    value = time,
+                    value         = time,
                     onValueChange = {},
-                    label = { Text("Time", style = MaterialTheme.typography.bodyMedium) },
-                    placeholder = {
-                        Text(
-                            "Pick time",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    label         = { Text("Time", style = MaterialTheme.typography.bodyMedium) },
+                    placeholder   = { Text("Pick time", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    modifier      = Modifier.weight(1f),
+                    shape         = RoundedCornerShape(12.dp),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor   = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     ),
                     trailingIcon = {
                         IconButton(onClick = onTimeClick) {
-                            Icon(
-                                Icons.Default.Schedule,
-                                contentDescription = "Pick Time",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(18.dp)
-                            )
+                            Icon(Icons.Default.Schedule, contentDescription = "Pick Time",
+                                tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                         }
                     },
-                    readOnly = true,
+                    readOnly   = true,
                     singleLine = true
                 )
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // City Dropdown
-            ExposedDropdownMenuBox(
-                expanded = cityExpanded,
-                onExpandedChange = onCityExpandedChange
-            ) {
+            ExposedDropdownMenuBox(expanded = cityExpanded, onExpandedChange = onCityExpandedChange) {
                 OutlinedTextField(
-                    value = city,
+                    value         = city,
                     onValueChange = onCityChange,
-                    label = { Text("Birth City", style = MaterialTheme.typography.bodyMedium) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    label         = { Text("Birth City", style = MaterialTheme.typography.bodyMedium) },
+                    modifier      = Modifier.fillMaxWidth().menuAnchor(),
+                    shape         = RoundedCornerShape(12.dp),
+                    colors        = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor   = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     ),
                     trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary)
                     },
                     singleLine = true
                 )
-
                 val filtered = cities.filter { it.contains(city, ignoreCase = true) }
                 if (filtered.isNotEmpty()) {
-                    ExposedDropdownMenu(
-                        expanded = cityExpanded,
-                        onDismissRequest = { onCityExpandedChange(false) }
-                    ) {
+                    ExposedDropdownMenu(expanded = cityExpanded, onDismissRequest = { onCityExpandedChange(false) }) {
                         filtered.take(8).forEach { c ->
                             DropdownMenuItem(
-                                text = { Text(c, style = MaterialTheme.typography.bodyMedium) },
-                                onClick = {
-                                    onCityChange(c)
-                                    onCityExpandedChange(false)
-                                }
+                                text    = { Text(c, style = MaterialTheme.typography.bodyMedium) },
+                                onClick = { onCityChange(c); onCityExpandedChange(false) }
                             )
                         }
                     }
@@ -499,41 +449,43 @@ fun PersonInputCard(
     }
 }
 
+// ── Compatibility Result Card ──────────────────────────────────────────────────
+
 @Composable
 fun CompatibilityResultCard(data: CompatibilityResponse) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        modifier  = Modifier.fillMaxWidth(),
+        shape     = RoundedCornerShape(20.dp),
+        colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier            = Modifier.padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Names & Signs
+            // ── Names & Signs ──────────────────────────────────────────────────
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment     = Alignment.CenterVertically
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
+                        modifier = Modifier.size(52.dp).clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surface),
                         contentAlignment = Alignment.Center
                     ) { Text(text = "👤", fontSize = 24.sp) }
                     Spacer(modifier = Modifier.height(6.dp))
+                    // ✅ FIXED: was data.person1.name → now data.person1_name
                     Text(
-                        text = data.person1.name,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onBackground,
+                        text       = data.person1_name,
+                        style      = MaterialTheme.typography.titleSmall,
+                        color      = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.SemiBold
                     )
+                    // ✅ FIXED: was data.person1.sun_sign → now data.person1_sign
                     Text(
-                        text = data.person1.sun_sign,
+                        text  = data.person1_sign,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -543,21 +495,21 @@ fun CompatibilityResultCard(data: CompatibilityResponse) {
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
+                        modifier = Modifier.size(52.dp).clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surface),
                         contentAlignment = Alignment.Center
                     ) { Text(text = "👤", fontSize = 24.sp) }
                     Spacer(modifier = Modifier.height(6.dp))
+                    // ✅ FIXED: was data.person2.name → now data.person2_name
                     Text(
-                        text = data.person2.name,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onBackground,
+                        text       = data.person2_name,
+                        style      = MaterialTheme.typography.titleSmall,
+                        color      = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.SemiBold
                     )
+                    // ✅ FIXED: was data.person2.sun_sign → now data.person2_sign
                     Text(
-                        text = data.person2.sun_sign,
+                        text  = data.person2_sign,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -568,112 +520,185 @@ fun CompatibilityResultCard(data: CompatibilityResponse) {
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Compatibility Score
+            // ── Score ──────────────────────────────────────────────────────────
             Text(
-                text = "Compatibility Score",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
+                text       = "Compatibility Score",
+                style      = MaterialTheme.typography.labelLarge,
+                color      = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(8.dp))
+            // ✅ FIXED: was data.zodiac_compatibility.score → now data.compatibility_score
             Text(
-                text = "${data.zodiac_compatibility.score}%",
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.primary,
+                text       = "${data.compatibility_score}%",
+                style      = MaterialTheme.typography.displaySmall,
+                color      = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(6.dp))
             LinearProgressIndicator(
-                progress = { data.zodiac_compatibility.score / 100f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(RoundedCornerShape(4.dp)),
-                color = MaterialTheme.colorScheme.primary,
+                progress   = { data.compatibility_score / 100f },
+                modifier   = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
+                color      = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surface
             )
-
             Spacer(modifier = Modifier.height(14.dp))
+            // ✅ FIXED: was data.zodiac_compatibility.insights → now data.description
             Text(
-                text = data.zodiac_compatibility.insights,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text      = data.description,
+                style     = MaterialTheme.typography.bodySmall,
+                color     = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 lineHeight = 18.sp
             )
 
-            // Marriage Prediction
+            // ── Marriage Prediction ────────────────────────────────────────────
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "💍 Marriage Prediction",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.primary,
+                text       = "💍 Marriage Prediction",
+                style      = MaterialTheme.typography.titleSmall,
+                color      = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(10.dp))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                shape    = RoundedCornerShape(12.dp),
+                colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border   = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier              = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        // ✅ FIXED: was data.marriage_prediction.quality → now data.quality
                         Text(
-                            text = data.marriage_prediction.quality,
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.primary,
+                            text       = data.quality,
+                            style      = MaterialTheme.typography.titleSmall,
+                            color      = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold
                         )
+                        // ✅ FIXED: was data.marriage_prediction.score → now data.compatibility_score
                         Text(
-                            text = "Score: ${data.marriage_prediction.score}%",
+                            text  = "Score: ${data.compatibility_score}%",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = data.marriage_prediction.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text       = data.description,
+                        style      = MaterialTheme.typography.bodySmall,
+                        color      = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 18.sp
                     )
-                    if (data.marriage_prediction.timeline.isNotEmpty()) {
+                    // ✅ FIXED: was data.marriage_prediction.timeline → now data.marriage_timeline
+                    if (data.marriage_timeline.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "📅 Timeline: ${data.marriage_prediction.timeline}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onBackground,
+                            text       = "📅 Timeline: ${data.marriage_timeline}",
+                            style      = MaterialTheme.typography.bodySmall,
+                            color      = MaterialTheme.colorScheme.onBackground,
                             fontWeight = FontWeight.Medium
                         )
                     }
-                    if (data.marriage_prediction.strengths.isNotEmpty()) {
+                    // ✅ FIXED: was data.marriage_prediction.strengths → now data.strengths
+                    if (data.strengths.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "✅ Strengths: ${data.marriage_prediction.strengths}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            text       = "✅ Strengths: ${data.strengths}",
+                            style      = MaterialTheme.typography.bodySmall,
+                            color      = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 16.sp
                         )
                     }
-                    if (data.marriage_prediction.auspicious_months.isNotEmpty()) {
+                    // ✅ FIXED: was data.marriage_prediction.auspicious_months → now data.lucky_months
+                    if (data.lucky_months.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "🌟 Best months: ${data.marriage_prediction.auspicious_months.joinToString(", ")}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
+                            text       = "🌟 Best months: ${data.lucky_months.joinToString(", ")}",
+                            style      = MaterialTheme.typography.bodySmall,
+                            color      = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Medium
                         )
                     }
+                    // ✅ NEW: Also show auspicious dates if available
+                    if (data.auspicious_dates.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text       = "📅 Auspicious Dates",
+                            style      = MaterialTheme.typography.labelMedium,
+                            color      = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        data.auspicious_dates.take(3).forEach { aDate ->
+                            Text(
+                                text       = "• ${aDate.date} (${aDate.day}) — ${aDate.time}",
+                                style      = MaterialTheme.typography.bodySmall,
+                                color      = MaterialTheme.colorScheme.onSurfaceVariant,
+                                lineHeight = 20.sp
+                            )
+                        }
+                    }
+                }
+            }
+
+            // ── Element Compatibility ──────────────────────────────────────────
+            Spacer(modifier = Modifier.height(12.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape    = RoundedCornerShape(12.dp),
+                colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border   = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+            ) {
+                Row(
+                    modifier              = Modifier.fillMaxWidth().padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment     = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text  = "Elements: ${data.element_compatibility.person1_element} × ${data.element_compatibility.person2_element}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text       = if (data.element_compatibility.compatible) "✅ Compatible" else "⚡ Different",
+                        style      = MaterialTheme.typography.labelSmall,
+                        color      = if (data.element_compatibility.compatible) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }
     }
 }
+
+// ── Shared Error Card ──────────────────────────────────────────────────────────
+
+//@Composable
+//fun ErrorCard(message: String) {
+//    Card(
+//        modifier  = Modifier.fillMaxWidth(),
+//        shape     = RoundedCornerShape(16.dp),
+//        colors    = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+//    ) {
+//        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+//            Text(text = "⚠️", fontSize = 24.sp)
+//            Spacer(modifier = Modifier.width(12.dp))
+//            Text(
+//                text  = message,
+//                style = MaterialTheme.typography.bodyMedium,
+//                color = MaterialTheme.colorScheme.onErrorContainer
+//            )
+//        }
+//    }
+//}

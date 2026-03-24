@@ -7,6 +7,7 @@ import com.example.astroml.data.models.CompatibilityResponse
 import com.example.astroml.data.models.HealthResponse
 import com.example.astroml.data.models.HoroscopeRequest
 import com.example.astroml.data.models.HoroscopeResponse
+import com.example.astroml.data.models.MuhuratRequest
 import com.example.astroml.data.models.MuhuratResponse
 import com.example.astroml.data.models.PalmAnalysisResponse
 import com.example.astroml.data.models.ZodiacResponse
@@ -17,7 +18,6 @@ import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
-import retrofit2.http.Query
 
 interface ApiService {
 
@@ -46,15 +46,16 @@ interface ApiService {
         @Part image: MultipartBody.Part
     ): Response<PalmAnalysisResponse>
 
-    @POST("check-compatibility")
+    // ✅ FIXED: was "check-compatibility" → correct endpoint is "match-compatibility"
+    @POST("match-compatibility")
     suspend fun checkCompatibility(
         @Body request: CompatibilityRequest
     ): Response<CompatibilityResponse>
 
-    @GET("muhurat")
+    // ✅ FIXED: was GET "muhurat" with @Query params
+    //           Backend is POST "find-muhurat" with a JSON body
+    @POST("find-muhurat")
     suspend fun getMuhurat(
-        @Query("sign") sign: String,
-        @Query("activity") activity: String
+        @Body request: MuhuratRequest
     ): Response<MuhuratResponse>
 }
-

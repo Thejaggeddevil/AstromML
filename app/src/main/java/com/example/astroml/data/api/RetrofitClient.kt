@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
 
     // Abhi local — baad mein production URL daal dena
-    private const val BASE_URL = "http://192.168.1.11:8000/"
+    private const val BASE_URL = "http://192.168.1.21:8000/"
     // Note: 10.0.2.2 = Android emulator ka localhost
     // Real device pe test karne ke liye apna PC ka IP daal do
     // jaise: "http://192.168.1.5:8000/"
