@@ -42,9 +42,5 @@ An **astrology app** powered by machine learning that gives you personalized cos
 
 
 
-## 🪐 Zodiac Signs Supported
-
-
-
 
 ## ⭐ If you found this helpful, give it a star!
